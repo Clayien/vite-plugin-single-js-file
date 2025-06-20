@@ -1,0 +1,34 @@
+{
+	"name": "@clayien/vite-plugin-js-css-to-single",
+	"version": "0.0.1",
+	"description": "Vite plugin to bundle CSS, JS files to a single JS file",
+	"license": "MIT",
+	"author": "SymphonySimper",
+	"private": false,
+	"publishConfig": {
+		"access": "public"
+	},
+	"files": [
+		"dist"
+	],
+	"main": "./dist/index.mjs",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.mts",
+	"exports": {
+		".": "./dist/index.mjs",
+		"./package.json": "./package.json"
+	},
+	"scripts": {
+		"prepare": "npm run build",
+		"build": "tsdown",
+		"format": "prettier . --write",
+		"pub": "npm run build && npm publish"
+	},
+	"devDependencies": {
+		"@types/node": "^24.0.3",
+		"prettier": "^3.5.3",
+		"tsdown": "^0.12.8",
+		"typescript": "^5.8.3",
+		"vite": "^6.3.5"
+	}
+}
