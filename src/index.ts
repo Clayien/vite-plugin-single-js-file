@@ -1,6 +1,14 @@
 import type { Plugin } from 'vite';
 import type { OutputBundle } from 'rollup';
 
+type FilePattern = RegExp | string;
+
+type PluginOptions = {
+	bundleName?: string;
+	filePatternsCSS?: FilePattern[];
+	filePatternsJS?: FilePattern[];
+};
+
 function getCode(bundle: OutputBundle, name: string): string {
 	const file = bundle[name];
 
@@ -20,7 +28,16 @@ function getCode(bundle: OutputBundle, name: string): string {
 	return output;
 }
 
-export default function plugin(): Plugin {
+function checkMatch(text: string, patterns: FilePattern[]): boolean {
+	return patterns.some((r) => text.match(r));
+}
+
+export default function plugin(opts: PluginOptions = {}): Plugin {
+	const bundleName = opts.bundleName ?? 'bundle.js';
+
+	const filePatternsCSS = opts.filePatternsCSS ?? [new RegExp('\\.css$', 'm')];
+	const filePatternsJS = opts.filePatternsJS ?? [new RegExp('\\.js$', 'm')];
+
 	return {
 		name: '@clayien/vite-plugin-js-css-to-single',
 
@@ -32,9 +49,9 @@ export default function plugin(): Plugin {
 				let js: string = '';
 
 				for (const name in bundle) {
-					if (name.endsWith('.css')) {
+					if (checkMatch(name, filePatternsCSS)) {
 						css += getCode(bundle, name);
-					} else if (name.endsWith('.js')) {
+					} else if (checkMatch(name, filePatternsJS)) {
 						js += getCode(bundle, name);
 					}
 				}
@@ -51,7 +68,7 @@ document.body.appendChild(inlineStyle);
 
 					this.emitFile({
 						type: 'asset',
-						fileName: 'bundle.js',
+						fileName: bundleName,
 						source: source
 					});
 				}
