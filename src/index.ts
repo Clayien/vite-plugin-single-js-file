@@ -56,22 +56,28 @@ export default function plugin(opts: PluginOptions = {}): Plugin {
 					}
 				}
 
+				let source: string = '';
+
+				if (js.length > 0) {
+					source = js;
+				}
+
 				if (css.length > 0) {
-					const source: string = `
-${js}
+					source = `
+${source}
 
 const inlineStyle = document.createElement('style');
 inlineStyle.innerHTML = \`${css}\`;
 
 document.body.appendChild(inlineStyle);
       `;
-
-					this.emitFile({
-						type: 'asset',
-						fileName: bundleName,
-						source: source
-					});
 				}
+
+				this.emitFile({
+					type: 'asset',
+					fileName: bundleName,
+					source: source
+				});
 			}
 		}
 	};
