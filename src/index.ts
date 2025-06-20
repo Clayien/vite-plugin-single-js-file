@@ -45,13 +45,18 @@ export default function plugin(opts: PluginOptions = {}): Plugin {
 			order: 'post',
 
 			handler(_, bundle) {
+				const filesCSS: string[] = [];
 				let css: string = '';
+
+				const filesJS: string[] = [];
 				let js: string = '';
 
 				for (const name in bundle) {
 					if (checkMatch(name, filePatternsCSS)) {
+						filesCSS.push(name);
 						css += getCode(bundle, name);
 					} else if (checkMatch(name, filePatternsJS)) {
+						filesJS.push(name);
 						js += getCode(bundle, name);
 					}
 				}
@@ -78,6 +83,9 @@ document.body.appendChild(inlineStyle);
 					fileName: bundleName,
 					source: source
 				});
+
+				this.info(`CSS Files bundled into ${bundleName}: [${filesCSS}]`);
+				this.info(`JS Files bundled into ${bundleName}: [${filesJS}]`);
 			}
 		}
 	};
