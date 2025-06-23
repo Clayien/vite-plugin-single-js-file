@@ -1,6 +1,6 @@
 {
 	"name": "@clayien/vite-plugin-single-js-file",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Vite plugin to bundle CSS, JS files to a single JS file",
 	"license": "MIT",
 	"author": "SymphonySimper",
@@ -12,7 +12,9 @@
 		"type": "git",
 		"url": "git+https://github.com/Clayien/vite-plugin-single-js-file"
 	},
-	"files": ["dist"],
+	"files": [
+		"dist"
+	],
 	"main": "./dist/index.mjs",
 	"module": "./dist/index.mjs",
 	"types": "./dist/index.d.mts",
