@@ -9,9 +9,12 @@ type LangConfig = {
 };
 
 type PluginOptions = {
-	bundleName?: string;
-	css?: Partial<LangConfig>;
-	js?: Partial<LangConfig>;
+	bundleName: string;
+	css: Partial<LangConfig>;
+	js: Partial<LangConfig>;
+	integrations: {
+		sveltekit: boolean;
+	};
 };
 
 function getCode(bundle: OutputBundle, name: string): string {
@@ -33,7 +36,7 @@ function getCode(bundle: OutputBundle, name: string): string {
 	return output;
 }
 
-function getDefaultConfig(currConfig: Partial<LangConfig>, defaultConfig: LangConfig): LangConfig {
+function getLangConfig(currConfig: Partial<LangConfig>, defaultConfig: LangConfig): LangConfig {
 	return {
 		filePatterns: currConfig.filePatterns ?? defaultConfig.filePatterns,
 		pre: currConfig.pre ?? defaultConfig.pre,
@@ -41,24 +44,34 @@ function getDefaultConfig(currConfig: Partial<LangConfig>, defaultConfig: LangCo
 	};
 }
 
+function getConfig(opts: Partial<PluginOptions>): PluginOptions & {
+	css: LangConfig;
+	js: LangConfig;
+} {
+	return {
+		bundleName: opts.bundleName ?? 'bundle.js',
+		css: getLangConfig(opts.css ?? {}, {
+			filePatterns: [new RegExp('\\.css$', 'm')],
+			pre: '',
+			post: ''
+		}),
+		js: getLangConfig(opts.js ?? {}, {
+			filePatterns: [new RegExp('\\.js$', 'm')],
+			pre: '',
+			post: ''
+		}),
+		integrations: {
+			sveltekit: opts.integrations?.sveltekit ?? false
+		}
+	};
+}
+
 function checkMatch(text: string, patterns: FilePattern[]): boolean {
 	return patterns.some((r) => text.match(r));
 }
 
-export default function plugin(opts: PluginOptions = {}): Plugin {
-	const bundleName = opts.bundleName ?? 'bundle.js';
-
-	const cssConfig = getDefaultConfig(opts.css ?? {}, {
-		filePatterns: [new RegExp('\\.css$', 'm')],
-		pre: '',
-		post: ''
-	});
-
-	const jsConfig = getDefaultConfig(opts.js ?? {}, {
-		filePatterns: [new RegExp('\\.js$', 'm')],
-		pre: '',
-		post: ''
-	});
+export default function plugin(opts: Partial<PluginOptions> = {}): Plugin {
+	const currOpts = getConfig(opts);
 
 	return {
 		name: '@clayien/vite-plugin-single-js-file',
@@ -74,10 +87,10 @@ export default function plugin(opts: PluginOptions = {}): Plugin {
 				let js: string = '';
 
 				for (const name in bundle) {
-					if (checkMatch(name, cssConfig.filePatterns)) {
+					if (checkMatch(name, currOpts.css.filePatterns)) {
 						filesCSS.push(name);
 						css += getCode(bundle, name);
-					} else if (checkMatch(name, jsConfig.filePatterns)) {
+					} else if (checkMatch(name, currOpts.js.filePatterns)) {
 						filesJS.push(name);
 						js += getCode(bundle, name);
 					}
@@ -87,31 +100,31 @@ export default function plugin(opts: PluginOptions = {}): Plugin {
 
 				if (js.length > 0) {
 					source = `
-${jsConfig.pre}
+${currOpts.js.pre}
 ${js}
-${jsConfig.post}`;
+${currOpts.js.post}`;
 				}
 
 				if (css.length > 0) {
 					source = `
 ${source}
 
-${cssConfig.pre}
+${currOpts.css.pre}
 const inlineStyle = document.createElement('style');
 inlineStyle.innerHTML = \`${css}\`;
 
 document.body.appendChild(inlineStyle);
-${cssConfig.post}`;
+${currOpts.css.post}`;
 				}
 
 				this.emitFile({
 					type: 'asset',
-					fileName: bundleName,
+					fileName: currOpts.bundleName,
 					source: source
 				});
 
-				this.info(`CSS Files bundled into ${bundleName}: [${filesCSS}]`);
-				this.info(`JS Files bundled into ${bundleName}: [${filesJS}]`);
+				this.info(`CSS Files bundled into ${currOpts.bundleName}: [${filesCSS}]`);
+				this.info(`JS Files bundled into ${currOpts.bundleName}: [${filesJS}]`);
 			}
 		}
 	};
