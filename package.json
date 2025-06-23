@@ -1,5 +1,5 @@
 {
-	"name": "@clayien/vite-plugin-js-css-to-single",
+	"name": "@clayien/vite-plugin-single-js-file",
 	"version": "0.0.2",
 	"description": "Vite plugin to bundle CSS, JS files to a single JS file",
 	"license": "MIT",

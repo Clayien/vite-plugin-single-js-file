@@ -39,7 +39,7 @@ export default function plugin(opts: PluginOptions = {}): Plugin {
 	const filePatternsJS = opts.filePatternsJS ?? [new RegExp('\\.js$', 'm')];
 
 	return {
-		name: '@clayien/vite-plugin-js-css-to-single',
+		name: '@clayien/vite-plugin-single-js-file',
 
 		generateBundle: {
 			order: 'post',
