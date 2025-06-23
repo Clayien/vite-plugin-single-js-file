@@ -99,6 +99,29 @@ export default function plugin(opts: Partial<PluginOptions> = {}): Plugin {
 				let source: string = '';
 
 				if (js.length > 0) {
+					if (currOpts.integrations.sveltekit) {
+						const sveltekitHash = js.match(new RegExp('this\\.__sveltekit_([a-zA-Z0-9]+)='));
+						if (sveltekitHash) {
+							const hash = sveltekitHash[1];
+							if (hash.length > 0) {
+								currOpts.js.pre = `
+${currOpts.js.pre}
+
+__sveltekit_${hash} = {
+	base: new URL('.', location).pathname.slice(0, -1)
+};
+
+const element = document.currentScript.parentElement;
+`;
+								currOpts.js.post = `
+__sveltekit_${hash}.app.start(element);
+
+${currOpts.js.post}
+`;
+							}
+						}
+					}
+
 					source = `
 ${currOpts.js.pre}
 ${js}
