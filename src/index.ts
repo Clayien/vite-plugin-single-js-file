@@ -129,6 +129,8 @@ ${currOpts.js.post}`;
 				}
 
 				if (css.length > 0) {
+					css = css.replaceAll('\\', '\\\\')
+
 					source = `
 ${source}
 
