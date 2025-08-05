@@ -10,7 +10,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/Clayien/vite-plugin-single-js-file"
+		"url": "git+https://github.com/Clayien/vite-plugin-single-js-file.git"
 	},
 	"files": [
 		"dist"
